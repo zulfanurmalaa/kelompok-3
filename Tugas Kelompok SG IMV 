@@ -1,0 +1,105 @@
+class KalkulatorKeuangan:
+    def __init__(self):
+        # Inisialisasi objek kalkulator keuangan
+        self.file_path = 'riwayat_transaksi.txt'
+        self.transaksi = self.baca_dari_file()
+
+    def tambah_transaksi(self, nama, jumlah, jenis):
+        # Menambahkan transaksi baru ke dalam list self.transaksi
+        transaksi_baru = {'nama': nama, 'jumlah': jumlah, 'jenis': jenis}
+        self.transaksi.append(transaksi_baru)
+        self.simpan_ke_file()
+
+    def tampilkan_transaksi(self):
+        # Menampilkan seluruh transaksi yang ada
+        if not self.transaksi:
+            print("Belum ada transaksi.")
+        else:
+            for i, transaksi in enumerate(self.transaksi, start=1):
+                print(f"{i}. Nama: {transaksi['nama']}, Jumlah: {transaksi['jumlah']} Rupiah, Jenis: {transaksi['jenis']}")
+
+    def hapus_transaksi(self, index):
+        # Menghapus transaksi berdasarkan indeks yang diberikan
+        if 1 <= index <= len(self.transaksi):
+            transaksi_terhapus = self.transaksi.pop(index - 1)
+            print(f"Transaksi '{transaksi_terhapus['nama']}' telah dihapus.")
+            self.simpan_ke_file()
+        else:
+            print("Indeks transaksi tidak valid.")
+
+    def kalkulasi_total_pengeluaran(self):
+        # Menghitung total pengeluaran dari seluruh transaksi
+        total_pengeluaran = sum(transaksi['jumlah'] for transaksi in self.transaksi if transaksi['jenis'] == 'pengeluaran')
+        return total_pengeluaran
+
+    def kalkulasi_total_pajak(self):
+        # Menghitung total pajak dari seluruh transaksi
+        total_pajak = sum(transaksi['jumlah'] * 0.1 for transaksi in self.transaksi if transaksi['jenis'] == 'pajak')
+        return total_pajak
+
+    def tampilkan_total_pengeluaran_dan_pajak(self):
+        # Menampilkan total pengeluaran dan pajak
+        total_pengeluaran = self.kalkulasi_total_pengeluaran()
+        total_pajak = self.kalkulasi_total_pajak()
+
+        print(f"Total Pengeluaran: {total_pengeluaran} Rupiah")
+        print(f"Total Pajak: {total_pajak} Rupiah")
+
+    def simpan_ke_file(self):
+        # Menyimpan data transaksi ke dalam file teks
+        with open(self.file_path, 'w') as file:
+            for transaksi in self.transaksi:
+                file.write(f"{transaksi['nama']},{transaksi['jumlah']},{transaksi['jenis']}\n")
+
+    def baca_dari_file(self):
+        # Membaca data transaksi dari file teks
+        try:
+            with open(self.file_path, 'r') as file:
+                lines = file.readlines()
+                transaksi = []
+                for line in lines:
+                    nama, jumlah, jenis = line.strip().split(',')
+                    transaksi.append({'nama': nama, 'jumlah': float(jumlah), 'jenis': jenis})
+                return transaksi
+        except FileNotFoundError:
+            return []
+
+# Contoh penggunaan:
+kalkulator = KalkulatorKeuangan()
+
+while True:
+    print("\n===== Kalkulator Keuangan =====")
+    print("1. Tambah Transaksi")
+    print("2. Tampilkan Transaksi")
+    print("3. Hapus Transaksi")
+    print("4. Tampilkan Total Pengeluaran dan Pajak")
+    print("0. Keluar")
+
+    pilihan = input("Pilih menu (0-4): ")
+
+    if pilihan == '0':
+        print("Terima kasih! Keluar dari program.")
+        break
+    elif pilihan == '1':
+        print("\n==Tambah Transaksi==\n")
+        nama = input("Masukkan nama transaksi: ")
+        jumlah = float(input("Masukkan jumlah transaksi(dalam rupiah): Rp."))
+        jenis = input("Jenis transaksi (pengeluaran/pajak): ").lower()
+
+        if jenis in ['pengeluaran', 'pajak']:
+            kalkulator.tambah_transaksi(nama, jumlah, jenis)
+            print("Transaksi berhasil ditambahkan.")
+        else:
+            print("Jenis transaksi tidak valid.")
+    elif pilihan == '2':
+        print("\n==List Transaksi==\n")
+        kalkulator.tampilkan_transaksi()
+    elif pilihan == '3':
+        print("\n==Hapus Transaksi==\n")
+        index_hapus = int(input("Masukkan indeks transaksi yang ingin dihapus: "))
+        kalkulator.hapus_transaksi(index_hapus)
+    elif pilihan == '4':
+        print("\n==Total Pengeluaran dan Pajak==\n")
+        kalkulator.tampilkan_total_pengeluaran_dan_pajak()
+    else:
+        print("Pilihan tidak valid. Silakan pilih lagi.")
